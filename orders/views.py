@@ -5,6 +5,12 @@ from .forms import OrderForm
 import datetime
 
 # Create your views here.
+
+
+def payments(request):
+    return render(request, 'orders/payments.html')
+
+
 def place_order(request, total=0, quantity=0):
     current_user = request.user
     # If the cart count is less than or equal to 0, then redirect back to store
@@ -51,11 +57,16 @@ def place_order(request, total=0, quantity=0):
             order_number = current_date + str(data.id)
             data.order_number = order_number
             data.save()
+            order = Order.objects.get(user=current_user, is_ordered=False, order_number=order_number)
+            context = {
+                'order': order,
+                'cart_items': cart_items,
+                'total': total,
+                'tax': tax,
+                'grand_total': grand_total,
+            }
         # else:
         #     print("Error: ", form.errors)
-            return redirect('checkout')
+            return render(request, 'orders/payments.html', context)
     else:
         return redirect('checkout')
-
-
-
